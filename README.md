@@ -1,3 +1,4 @@
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
@@ -112,3 +113,8 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+Existem três pontos importantes:
+1. O backend ainda não implementa a listagem e consulta de agendamentos. Por isso, implementei a criação, mas não inventei uma agenda com dados fictícios.
+2. Não há autenticação de usuários implementada.
+3. O frontend utiliza um proxy do Vite para encaminhar as requisições ao backend durante o desenvolvimento, sem precisar alterar o CORS agora.
