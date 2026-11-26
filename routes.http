@@ -113,3 +113,182 @@ x-empresa-id: 1
     "inicio": "2026-11-13T21:00:00-03:00",
     "servicoIds": [2,3]
 }
+
+
+### Nicoly
+# Testes da parte da Nicoly: empresas, serviços e CORS.
+# Antes de rodar, ajuste os IDs (empresa e serviço) conforme os dados do seu banco.
+# Os resultados marcados como "Esperado" são o comportamento previsto pelo código.
+
+### ---------- EMPRESAS ----------
+
+### Listar empresas (somente empresas ativas)
+# Esperado: 200 com a lista; empresas com ativa = false não aparecem
+GET http://localhost:3000/empresas
+
+###
+### Consultar empresa por identificador (a rota por ID continua acessando empresas inativas)
+# Esperado: 200 com a empresa; 404 "Empresa não encontrada" se o ID não existir
+GET http://localhost:3000/empresas/1
+
+###
+### Criar empresa
+# O CNPJ aceita pontuação (é normalizado). Use um CNPJ que ainda não exista no banco.
+# Esperado: 201 com a empresa criada
+POST http://localhost:3000/empresas
+Content-Type: application/json
+
+{
+    "nome": "Barbearia Teste Nicoly",
+    "cnpj": "12.345.678/0001-95",
+    "telefone": "11988887777"
+}
+
+###
+### Tentar cadastrar o mesmo CNPJ novamente
+# Esperado: 409 com a mensagem "Já existe empresa com este CNPJ" (sem espaço no início)
+POST http://localhost:3000/empresas
+Content-Type: application/json
+
+{
+    "nome": "Barbearia Repetida",
+    "cnpj": "12.345.678/0001-95"
+}
+
+###
+### Validação de empresa: nome vazio e CNPJ inválido
+# Esperado: 400 com mensagens em português, por exemplo
+#   "O nome da empresa é obrigatório" e
+#   "CNPJ deve ter 12 letras ou números seguidos de 2 dígitos"
+POST http://localhost:3000/empresas
+Content-Type: application/json
+
+{
+    "nome": "",
+    "cnpj": "123"
+}
+
+###
+### Verificar que empresa inativa não aparece na listagem
+# ATENÇÃO: o PATCH abaixo ALTERA O BANCO (desativa a empresa). Por isso está comentado.
+# Para testar: remova os "# " das linhas abaixo, troque o ID e execute; depois rode
+# "Listar empresas" e confira que ela sumiu. Para reativar, envie "ativa": true.
+# Esperado: a empresa desativada não aparece em GET /empresas, mas GET /empresas/ID ainda a retorna
+#
+# PATCH http://localhost:3000/empresas/2
+# Content-Type: application/json
+#
+# {
+#     "ativa": false
+# }
+
+### ---------- SERVIÇOS ----------
+
+###
+### Listar serviços da empresa 1
+# Esperado: 200 com a lista da empresa 1
+GET http://localhost:3000/servicos
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Criar serviço
+# Esperado: 201 com o serviço criado (anote o "id" para os testes seguintes)
+POST http://localhost:3000/servicos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "nome": "Sobrancelha (teste)",
+    "preco": 25.50,
+    "duracaoMin": 15
+}
+
+###
+### Validação de serviço: nome vazio, preço negativo e duração menor que 5
+# Esperado: 400 com mensagens em português:
+#   "O nome do serviço é obrigatório", "O preço deve ser um número maior que zero",
+#   "A duração mínima é de 5 minutos"
+POST http://localhost:3000/servicos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "nome": "",
+    "preco": -5,
+    "duracaoMin": 3
+}
+
+###
+### Editar serviço (troque o ID pelo do serviço criado acima)
+# Esperado: 200 com o serviço atualizado; agendamentos antigos mantêm o precoCobrado
+PATCH http://localhost:3000/servicos/3
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "preco": 30.00
+}
+
+###
+### Excluir serviço SEM vínculo com agendamento (troque o ID por um serviço sem agendamentos)
+# ATENÇÃO: remove o serviço do banco.
+# Esperado: 200 com o serviço removido
+DELETE http://localhost:3000/servicos/3
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Tentar excluir serviço VINCULADO a agendamento (troque o ID por um serviço já agendado)
+# Esperado: 409 "Serviço já utilizado em agendamentos e não pode ser excluído"; o serviço continua existindo
+DELETE http://localhost:3000/servicos/2
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Acessar serviço de OUTRA empresa (serviço 2 pertence à empresa 1; consulta com empresa 2)
+# Esperado: 404 "Serviço não encontrado"
+GET http://localhost:3000/servicos/2
+Content-Type: application/json
+x-empresa-id: 2
+
+###
+### Editar serviço de outra empresa
+# Esperado: 404 "Serviço não encontrado"
+PATCH http://localhost:3000/servicos/2
+Content-Type: application/json
+x-empresa-id: 2
+
+{
+    "preco": 99.00
+}
+
+###
+### Excluir serviço de outra empresa
+# Esperado: 404 "Serviço não encontrado" (e o serviço NÃO é excluído)
+DELETE http://localhost:3000/servicos/2
+Content-Type: application/json
+x-empresa-id: 2
+
+###
+### Serviços sem o cabeçalho x-empresa-id
+# Esperado: 400 "Header x-empresa-id é obrigatório"
+GET http://localhost:3000/servicos
+
+### ---------- CORS ----------
+
+###
+### Pré-requisição (preflight) enviada pelo navegador, vinda do front-end em outra porta
+# Esperado: 204 com Access-Control-Allow-Origin e Access-Control-Allow-Headers incluindo x-empresa-id
+OPTIONS http://localhost:3000/servicos
+Origin: http://localhost:5173
+Access-Control-Request-Method: DELETE
+Access-Control-Request-Headers: x-empresa-id,content-type
+
+###
+### Requisição comum com Origin do front-end
+# Esperado: 200 e o cabeçalho de resposta Access-Control-Allow-Origin
+# Teste final de CORS: abra o front-end (http://localhost:5173) e confira se a lista de serviços carrega
+GET http://localhost:3000/servicos
+Origin: http://localhost:5173
+x-empresa-id: 1
