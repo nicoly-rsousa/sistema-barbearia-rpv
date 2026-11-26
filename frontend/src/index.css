@@ -1,0 +1,210 @@
+/* Estilos compartilhados do sistema.
+   Pensado para a recepção: textos grandes, botões grandes e poucos elementos na tela. */
+
+:root {
+  --cor-menu: #1f2937;
+  --cor-menu-hover: #374151;
+  --cor-destaque: #b45309;
+  --cor-primaria: #1d4ed8;
+  --cor-primaria-hover: #1e40af;
+  --cor-perigo: #b91c1c;
+  --cor-perigo-hover: #991b1b;
+  --cor-fundo: #f3f4f6;
+  --cor-card: #ffffff;
+  --cor-borda: #d1d5db;
+  --cor-texto: #111827;
+  --cor-texto-suave: #4b5563;
+  --cor-erro-fundo: #fee2e2;
+  --cor-erro-texto: #991b1b;
+  --cor-sucesso-fundo: #dcfce7;
+  --cor-sucesso-texto: #166534;
+  --cor-aviso-fundo: #fef3c7;
+  --cor-aviso-texto: #92400e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+}
+
+h1 { font-size: 1.8rem; margin: 0 0 16px; }
+h2 { font-size: 1.3rem; margin: 0 0 12px; }
+
+/* ---------- Layout geral ---------- */
+.app { display: flex; min-height: 100vh; }
+
+.menu {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--cor-menu);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.menu-marca { font-size: 1.4rem; font-weight: 700; padding: 0 12px 20px; }
+.menu-itens { display: flex; flex-direction: column; gap: 4px; }
+
+.menu-link {
+  display: block;
+  width: 100%;
+  padding: 14px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #e5e7eb;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.menu-link:hover { background: var(--cor-menu-hover); }
+.menu-link.ativo { background: var(--cor-destaque); color: #fff; font-weight: 600; }
+.menu-alterar { margin-top: auto; border-top: 1px solid var(--cor-menu-hover); border-radius: 0 0 8px 8px; }
+
+.principal { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.cabecalho {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px 28px;
+  background: var(--cor-card);
+  border-bottom: 1px solid var(--cor-borda);
+}
+.cabecalho-rotulo { color: var(--cor-texto-suave); }
+.cabecalho-empresa { font-size: 1.4rem; color: var(--cor-destaque); }
+
+.conteudo { padding: 28px; max-width: 1100px; width: 100%; }
+
+.titulo-linha { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.titulo-linha h1 { margin: 0; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* ---------- Botões ---------- */
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-grande { padding: 14px 24px; font-size: 1.05rem; }
+.btn-primario { background: var(--cor-primaria); color: #fff; }
+.btn-primario:hover:not(:disabled) { background: var(--cor-primaria-hover); }
+.btn-secundario { background: #fff; color: var(--cor-texto); border-color: var(--cor-borda); }
+.btn-secundario:hover:not(:disabled) { background: #f9fafb; }
+.btn-perigo { background: var(--cor-perigo); color: #fff; }
+.btn-perigo:hover:not(:disabled) { background: var(--cor-perigo-hover); }
+
+/* ---------- Formulários ---------- */
+.formulario h2 { margin-bottom: 16px; }
+.campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; flex: 1; }
+.campo label { font-weight: 600; }
+.campo input, .campo select {
+  padding: 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  font: inherit;
+  background: #fff;
+}
+.campo input:focus, .campo select:focus {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 1px;
+}
+.campos-linha { display: flex; gap: 16px; flex-wrap: wrap; }
+.campos-linha .campo { min-width: 200px; }
+.formulario-acoes { display: flex; justify-content: flex-end; gap: 12px; }
+
+/* ---------- Mensagens ---------- */
+.mensagem-erro, .mensagem-sucesso, .aviso {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0 0 16px;
+}
+.mensagem-erro { background: var(--cor-erro-fundo); color: var(--cor-erro-texto); }
+.mensagem-sucesso { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso-texto); }
+.aviso { background: var(--cor-aviso-fundo); color: var(--cor-aviso-texto); margin: 4px 0 0; font-size: 0.95rem; }
+
+.estado-erro { text-align: center; border-color: var(--cor-perigo); }
+.estado-erro h2 { color: var(--cor-erro-texto); }
+
+/* ---------- Tabelas ---------- */
+.tabela-caixa { padding: 0; overflow-x: auto; }
+.tabela { width: 100%; border-collapse: collapse; }
+.tabela th, .tabela td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--cor-borda); }
+.tabela th { background: #f9fafb; font-size: 0.95rem; color: var(--cor-texto-suave); }
+.tabela tbody tr:last-child td { border-bottom: 0; }
+.coluna-acoes { text-align: right !important; white-space: nowrap; }
+.coluna-acoes .btn + .btn { margin-left: 8px; }
+
+/* ---------- Seleção de empresa ---------- */
+.selecao { min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 48px 20px; }
+.selecao-caixa { width: 100%; max-width: 640px; }
+.selecao-ajuda { color: var(--cor-texto-suave); margin-top: -8px; margin-bottom: 24px; }
+.empresas-lista { list-style: none; margin: 0; padding: 0; }
+.empresa-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.empresa-nome { display: block; font-size: 1.2rem; }
+.empresa-detalhe { display: block; color: var(--cor-texto-suave); font-size: 0.95rem; }
+.etiqueta {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--cor-aviso-fundo);
+  color: var(--cor-aviso-texto);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ---------- Mensagens rápidas (toast) ---------- */
+.toasts { position: fixed; top: 16px; right: 16px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
+.toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+.toast-success { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso-texto); border-color: #86efac; }
+.toast-error { background: var(--cor-erro-fundo); color: var(--cor-erro-texto); border-color: #fca5a5; }
+.toast-fechar { background: transparent; border: 0; color: inherit; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+
+/* ---------- Janela de confirmação ---------- */
+.dialogo-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(17, 24, 39, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.dialogo { background: #fff; border-radius: 12px; padding: 24px; width: 100%; max-width: 460px; }
+.dialogo h2 { margin-bottom: 8px; }
+.dialogo p { margin: 0 0 20px; color: var(--cor-texto-suave); }
+.dialogo-acoes { display: flex; justify-content: flex-end; gap: 12px; }

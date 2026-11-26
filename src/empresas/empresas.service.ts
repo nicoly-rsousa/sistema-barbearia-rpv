@@ -13,13 +13,17 @@ export class EmpresasService {
     })
 
     if (existeEmpresa) {
-      throw new ConflictException(" Já existe empresa com este CNPJ")
+      throw new ConflictException("Já existe empresa com este CNPJ")
     }
     return this.prisma.empresa.create({ data: dto })
   }
 
   findAll() {
-    return this.prisma.empresa.findMany({ orderBy: { nome: `asc` } });
+    // A tela de seleção deve mostrar apenas empresas ativas
+    return this.prisma.empresa.findMany({
+      where: { ativa: true },
+      orderBy: { nome: `asc` }
+    });
   }
 
   async findOne(id: number) {

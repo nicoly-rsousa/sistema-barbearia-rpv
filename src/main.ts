@@ -12,6 +12,9 @@ async function bootstrap() {
     transform: true,
   }))
 
+  // Libera o consumo da API pelo front-end, que roda em outra porta (ex.: 5173)
+  app.enableCors();
+
   await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();

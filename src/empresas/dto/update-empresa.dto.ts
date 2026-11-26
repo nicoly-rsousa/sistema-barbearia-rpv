@@ -4,6 +4,6 @@ import { IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateEmpresaDto extends PartialType(CreateEmpresaDto) {
     @IsOptional()
-    @IsBoolean()
+    @IsBoolean({ message: "O campo ativa deve ser verdadeiro ou falso" })
     ativa?: boolean
 }

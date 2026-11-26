@@ -54,8 +54,12 @@ export class ServicosService {
   async remove(empresaId: number, id: number) {
     await this.empresas.validarEmpresaAtiva(empresaId)
 
+    // Retorna 404 (Serviço não encontrado) se não existir ou for de outra empresa
+    await this.findOne(empresaId, id)
+
+    // agendamentoServico não possui empresaId: filtramos pela relação com agendamento
     const usos = await this.prisma.agendamentoServico.count({
-      where: { empresaId, servicoId: id }
+      where: { servicoId: id, agendamento: { empresaId } }
     })
 
     if (usos > 0) {
