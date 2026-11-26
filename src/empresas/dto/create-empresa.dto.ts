@@ -6,8 +6,8 @@ const normalizarCnpj = ({ value }: { value: unknown }) => {
 }
 
 export class CreateEmpresaDto {
-    @IsString()
-    @IsNotEmpty()
+    @IsString({ message: "O nome da empresa deve ser um texto" })
+    @IsNotEmpty({ message: "O nome da empresa é obrigatório" })
     nome: string;
 
     @Transform(normalizarCnpj)
@@ -17,6 +17,6 @@ export class CreateEmpresaDto {
     cnpj: string;
 
     @IsOptional()
-    @IsString()
+    @IsString({ message: "O telefone deve ser um texto" })
     telefone?: string;
 }
