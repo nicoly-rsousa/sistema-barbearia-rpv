@@ -292,3 +292,178 @@ Access-Control-Request-Headers: x-empresa-id,content-type
 GET http://localhost:3000/servicos
 Origin: http://localhost:5173
 x-empresa-id: 1
+
+### Adriana
+# Testes da Parte A. A maioria cria ou altera dados. Use empresa 1 como principal e empresa 2 como segunda loja;
+# confira os IDs reais no banco e troque os exemplos abaixo se necessário.
+# Para o POST de sucesso, use cliente e serviço da empresa 1, profissional ativo, e um horário futuro livre.
+
+### Listar agendamentos AGENDADOS da empresa, em ordem de início
+# Adriana: confere filtro, ordem cronológica e isolamento pela empresa selecionada.
+GET http://localhost:3000/agendamentos?status=AGENDADO
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Status inválido
+# Adriana: confirma rejeição do filtro fora dos status permitidos.
+# Esperado: 400 "Status inválido"
+GET http://localhost:3000/agendamentos?status=EM_ANDAMENTO
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Consultar agendamento da própria empresa (troque o ID por um existente)
+# Adriana: confirma a consulta bem-sucedida dentro da empresa atual.
+GET http://localhost:3000/agendamentos/1
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Consultar os horários ocupados do profissional no dia (fuso -03:00)
+# Adriana: confere que a agenda retorna início e fim dos horários ocupados naquele dia.
+GET http://localhost:3000/agendamentos/agenda?profissionalId=1&data=2030-12-15
+Content-Type: application/json
+x-empresa-id: 1
+
+###
+### Criar agendamento: sucesso
+# Adriana: confirma a criação com cliente, barbeiro ativo, serviço e horário livre.
+# Esperado: 201. Anote o ID retornado para testar PATCH e GET por ID.
+POST http://localhost:3000/agendamentos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "clienteId": 1,
+    "profissionalId": 1,
+    "inicio": "2030-12-15T09:00:00-03:00",
+    "servicoIds": [1]
+}
+
+###
+### Criar no mesmo horário e profissional: conflito
+# Adriana: verifica que o mesmo profissional não recebe duas reservas sobrepostas.
+# Envie o mesmo corpo do teste de sucesso imediatamente após ele.
+# Esperado: 409; a resposta informa o intervalo já ocupado.
+POST http://localhost:3000/agendamentos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "clienteId": 1,
+    "profissionalId": 1,
+    "inicio": "2030-12-15T09:00:00-03:00",
+    "servicoIds": [1]
+}
+
+###
+### Tentar agendar com profissional inativo (troque pelo ID de um inativo da empresa 1)
+# Adriana: confirma que profissional inativo não pode receber novo atendimento.
+# Esperado: 404 "Profissional inativo não recebe agendamentos"
+POST http://localhost:3000/agendamentos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "clienteId": 1,
+    "profissionalId": 4,
+    "inicio": "2030-12-15T10:00:00-03:00",
+    "servicoIds": [1]
+}
+
+###
+### Tentar agendar em data passada
+# Adriana: confirma a validação de data passada já existente no POST.
+# Esperado: 400 "Não é possível agendar numa data antiga"
+POST http://localhost:3000/agendamentos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "clienteId": 1,
+    "profissionalId": 1,
+    "inicio": "2020-01-01T09:00:00-03:00",
+    "servicoIds": [1]
+}
+
+###
+### Finalizar como CONCLUIDO (troque pelo ID criado no teste de sucesso)
+# Adriana: registra o resultado do atendimento que estava AGENDADO.
+# Esperado: 200 com o agendamento atualizado
+PATCH http://localhost:3000/agendamentos/ID_DO_TESTE/status
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "status": "CONCLUIDO"
+}
+
+###
+### Tentar finalizar novamente o mesmo agendamento
+# Adriana: verifica que um agendamento finalizado não pode ser alterado de novo.
+# Esperado: 409 "Este agendamento já foi finalizado"
+PATCH http://localhost:3000/agendamentos/ID_DO_TESTE/status
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "status": "FALTOU"
+}
+
+###
+### Isolamento: consultar pela outra empresa um agendamento que pertence à empresa 1
+# Adriana: protege os dados da primeira loja ao consultar com o cabeçalho da segunda.
+# Troque ID_DO_AGENDAMENTO por um ID real da empresa 1; empresa 2 deve receber 404.
+GET http://localhost:3000/agendamentos/ID_DO_AGENDAMENTO
+Content-Type: application/json
+x-empresa-id: 2
+
+###
+### Isolamento: listar agendamentos sem misturar empresas
+# Adriana: confirma que a lista da segunda empresa não recebe os registros da primeira.
+GET http://localhost:3000/agendamentos?status=AGENDADO
+Content-Type: application/json
+x-empresa-id: 2
+
+###
+### Cabeçalho obrigatório
+# Adriana: confirma que a rota não aceita requisição sem empresa selecionada.
+# Esperado: 400 "Header x-empresa-id é obrigatório"
+GET http://localhost:3000/agendamentos
+Content-Type: application/json
+
+###
+### Validação das mensagens em português
+# Adriana: verifica que erros de campos inválidos são compreensíveis para a recepção.
+# Esperado: 400 com mensagens legíveis em português
+POST http://localhost:3000/agendamentos
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "clienteId": "abc",
+    "profissionalId": 1,
+    "inicio": "data inválida",
+    "servicoIds": []
+}
+
+###
+### Status permitido apenas no encerramento
+# Adriana: confirma que AGENDADO não é um status final aceito pelo PATCH.
+# Esperado: 400 com a mensagem do DTO
+PATCH http://localhost:3000/agendamentos/1/status
+Content-Type: application/json
+x-empresa-id: 1
+
+{
+    "status": "AGENDADO"
+}
+
+###
+### Consultar agenda com data impossível
+# Adriana: verifica rejeição de data que tem formato certo, mas não existe no calendário.
+# Esperado: 400 "Data inválida"
+GET http://localhost:3000/agendamentos/agenda?profissionalId=1&data=2030-02-31
+Content-Type: application/json
+x-empresa-id: 1
