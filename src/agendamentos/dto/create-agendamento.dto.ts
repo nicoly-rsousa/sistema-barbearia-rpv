@@ -1,18 +1,19 @@
 import { ArrayNotEmpty, ArrayUnique, IsArray, IsDateString, IsInt } from "class-validator";
 
+// Adriana: valida os dados necessários para marcar um atendimento.
 export class CreateAgendamentoDto {
-    @IsInt()
+    @IsInt({ message: "clienteId deve ser um número inteiro" })
     clienteId: number;
 
-    @IsInt()
+    @IsInt({ message: "profissionalId deve ser um número inteiro" })
     profissionalId: number;
 
-    @IsDateString()
+    @IsDateString({}, { message: "inicio deve ser uma data válida" })
     inicio: string;
 
-    @IsArray()
-    @ArrayNotEmpty()
-    @ArrayUnique()
-    @IsInt({ each: true })
+    @IsArray({ message: "servicoIds deve ser uma lista" })
+    @ArrayNotEmpty({ message: "Selecione ao menos um serviço" })
+    @ArrayUnique({ message: "Não repita o mesmo serviço" })
+    @IsInt({ each: true, message: "Cada serviço deve ter um identificador inteiro" })
     servicoIds: number[];
 }
